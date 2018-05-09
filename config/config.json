@@ -1,0 +1,13 @@
+storage "zookeeper" {
+  address = "zoo1:2181,zoo2:2181,zoo3:2181"
+  path    = "my-vault-data/"
+  znode_owner = "digest:vaultUser:raxgVAfnDRljZDAcJFxznkZsExs="
+  auth_info   = "digest:vaultUser:abc"
+}
+
+listener "tcp" {
+  address = "0.0.0.0:8200"
+  tls_disable = 1
+}
+
+ui = true

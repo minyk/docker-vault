@@ -1,0 +1,46 @@
+version: '2.1'
+services:
+  zoo1:
+    image: zookeeper:3.4
+    restart: always
+    hostname: zoo1
+    ports:
+      - 2181:2181
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+  zoo2:
+    image: zookeeper:3.4
+    restart: always
+    hostname: zoo2
+    ports:
+      - 2182:2181
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=0.0.0.0:2888:3888 server.3=zoo3:2888:3888
+  zoo3:
+    image: zookeeper:3.4
+    restart: always
+    hostname: zoo3
+    ports:
+      - 2183:2181
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=0.0.0.0:2888:3888
+  vault:
+    image: vault:0.10.1
+    entrypoint: vault server -config /vault/config
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ./config:/vault/config:rw
+    environment:
+      MAX_HEAP: "4096m"
+      VAULT_ADVERTISE_ADDR: "http://0.0.0.0:8200"
+      VAULT_CLUSTER_ADDR: "http://0.0.0.0:8201"
+    ports:
+      - "8200:8200"
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
